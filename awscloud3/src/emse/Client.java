@@ -2,6 +2,7 @@ package emse;
 
 import java.util.Scanner;
 
+
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -17,13 +18,13 @@ import software.amazon.awssdk.services.sqs.model.*;
 import software.amazon.awssdk.core.sync.RequestBody;
 
 
-public class GetDataSendMessage {
+public class Client {
 	
 	
-	static String path = "/Users/pierremaindron/Desktop/COURS_2A/Majeure/Cloud/Lab3Cloud/client/";
+	static String path = "/Users/emmacremon/Desktop/sales-2021-01-02.csv";
 	static String fileName = "sales-2021-01-02.csv";
-	static Path filePath = Paths.get(fileName);
-	static String [] tab = {"bucket1", "1"};
+	static Path filePath = Paths.get(path);
+	static String [] tab = {"buckettest14122000001", "1"};
 	
 
 	public static void main(String[] args) throws Exception {
@@ -40,8 +41,8 @@ public class GetDataSendMessage {
 			  System.exit(1); 
 			  }
 		  
-		  String bucketName = tab[0]; 
-		  String key = tab[1];
+		  String bucketName = "buckettest141220000001"; 
+		  String key = "1";
 		  
 		  Region region = Region.AP_NORTHEAST_1; 
 		  S3Client s3 = S3Client.builder()
@@ -85,6 +86,9 @@ public class GetDataSendMessage {
 				System.out.println(messages);
 		        /* */
 				if (messages.isEmpty()) {
+					System.out.println("Pas de nouveau message.");
+				}
+				else {
 					/* Delete messages */
 					SQS.deleteMessages(sqsClient, queueUrl2,  messages);
 					/* */
@@ -101,22 +105,20 @@ public class GetDataSendMessage {
 			        s3.getObject(getObjectRequest);
 				}
 				
-				pause(1);
+				EC2Worker.wait(60);
 			}
 		 
 
 	}
 
 	
-	
-	
-	
 	public static void readCSVfile(Path filePath) throws Exception {
 		try {
 			Scanner sc = new Scanner(filePath);
 			sc.useDelimiter(",");
 			while (sc.hasNext()) {
-				System.out.print(sc.next());
+				//System.out.print(sc.next());
+				sc.next();
 			}
 			sc.close();
 		} catch (IOException e) {
@@ -124,8 +126,6 @@ public class GetDataSendMessage {
 		}
 	}
 
-	
-	  
 	  
 	  public static void sendMessages(SqsClient sqsClient, String queueUrl, String msg, String msg2) {
 			
@@ -149,9 +149,6 @@ public class GetDataSendMessage {
 	  public static void pause(int tps_en_min) throws InterruptedException {
 		  Thread.sleep(1000*tps_en_min);
 	  }
-	  
-	  
-
-	  
+	    
 
 }
