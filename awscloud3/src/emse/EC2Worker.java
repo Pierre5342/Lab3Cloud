@@ -1,11 +1,10 @@
 package emse;
 
 import com.opencsv.CSVReader;
+
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -26,6 +24,9 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.Message;
 
 public class EC2Worker {
+	
+	static String path = "/Users/emmacremon/Desktop/sales-2021-01-02.csv";
+	static Path filePath = Paths.get(path);
 
 	/* Read a CSV file */
     public static List<List<String>> readFile(String csvName) throws IOException, CsvException {
@@ -116,11 +117,11 @@ public class EC2Worker {
         while(true) { //Infinite loop
         	if (messages.isEmpty()) {
             	System.out.println("No new messages");
+            	wait(60); //Wait one minute before checking again
             }
             else {
         	System.out.println(messages);
         	SQS.deleteMessages(sqsClient, queueUrl1, messages);
-            
         	
         	/* Retrieve file */
     		Message MessageBucket = messages.get(0);
@@ -142,8 +143,8 @@ public class EC2Worker {
             
             
             /* Calculs */
-    		String csvfile = "src/emse/sales-2021-01-02.csv";
-    	        List<List<String>> result = readFile(csvfile);
+            String csvfile = "/Users/emmacremon/Desktop/sales-2021-01-02.csv";
+    	    List<List<String>> result = readFile(csvfile);
     	        for (List<String> row :result){
     	            System.out.println(row.get(2));
     	        }
@@ -185,10 +186,11 @@ public class EC2Worker {
             SQS.sendMessages(sqsClient, queueUrl1, msg);
             System.out.println(msg);
             /* */
+            
+            wait(60); //Wait one minute before checking again
            
             }
-        	
-        	wait(60); //Wait one minute before checking again
+  
         }
         /* */
        
