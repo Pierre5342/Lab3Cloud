@@ -7,6 +7,8 @@ import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
+import software.amazon.awssdk.services.sqs.model.ListQueuesRequest;
+import software.amazon.awssdk.services.sqs.model.ListQueuesResponse;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequest;
@@ -40,6 +42,41 @@ public class SQS {
         }
         return "";
     }
+	
+	
+	// Obtains URL of Queues named like compared//
+    
+    public static String getURL(String compared, SqsClient sqsClient) {
+
+        System.out.println("\nList Queues");
+        // snippet-start:[sqs.java2.sqs_example.list_queues]
+        String prefix = "que";
+        boolean find = false;
+
+        try {
+            ListQueuesRequest listQueuesRequest = ListQueuesRequest.builder().queueNamePrefix(prefix).build();
+            ListQueuesResponse listQueuesResponse = sqsClient.listQueues(listQueuesRequest);
+
+            for (String url : listQueuesResponse.queueUrls()) {
+            	if (compared.equals(url.substring(url.lastIndexOf('/') + 1))){
+                    find = true;
+                    return url;
+                }
+            }
+            if (find == false){
+                System.out.println("Queue "+compared+" doesn't exists");
+                }
+
+        } catch (SqsException e) {
+            System.err.println(e.awsErrorDetails().errorMessage());
+            System.exit(1);
+            return " ";
+        }
+        // snippet-end:[sqs.java2.sqs_example.list_queues]
+		return " ";
+    }
+
+    
 	
 	public static void sendMessages(SqsClient sqsClient, String queueUrl, String msg) {
 		
@@ -93,5 +130,6 @@ public class SQS {
             System.exit(1);
         }
    }
+    
     
 }
